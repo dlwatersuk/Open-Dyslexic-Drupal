@@ -1,0 +1,5 @@
+name = Open Dyslexic Font Switch
+description = allows users to enable open dyslexic font at their leisure, may break layout styles test first.
+files[] = opendyslexic.module
+core = 7.x 
+package = Accessibility

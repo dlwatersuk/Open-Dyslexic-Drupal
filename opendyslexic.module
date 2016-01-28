@@ -1,0 +1,66 @@
+<?php
+
+function opendyslexic_block_info()
+{
+    $blocks['opendyslexic_switch'] = array(
+        'info' => t('Open Dyslexic Font Switcher'));
+    return $blocks;
+}
+
+function opendyslexic_menu()
+{
+    $menu = array();
+    $menu['od/ajax'] = array(
+        'title'            => '',
+        'page callback'    => '_opendyslexic_helper',
+        'page arguments' => array(1),
+        'type'             => MENU_CALLBACK,
+        'access arguments' => array('access content'),);
+    return $menu;
+}
+
+function _opendyslexic_helper($arg=null)
+{
+    $odf = new OpenDyslexicFont();
+    if ($arg == 'ajax') {
+        echo $odf->request($type);
+        exit();
+    }
+    return $odf->request($type);
+}
+
+function opendyslexic_block_view($delta='')
+{
+    $block = array();
+    switch ($delta)
+    {
+        case 'opendyslexic_switch':
+            $od = new OpenDyslexicFont();
+            $enabled = (bool)$od->request('check');
+            $text = $enabled ? 'Disable' : 'Enable';
+            $enabledString = $enabled ? 'true' : 'false';
+            drupal_add_js(drupal_get_path('module','opendyslexic').'/opendyslexic.js');
+            drupal_add_css('
+    			@font-face {
+                    font-family: OpenDyslexic;
+                    src: url(\''.$GLOBALS['base_path'].drupal_get_path('module','opendyslexic').'/fonts/OpenDyslexic-Regular.ttf\');
+                }
+	            body.opendyslexic {
+	                font-family: OpenDyslexic !important;
+	            }','inline');
+            $block['content'] = '<div id="openDyslexicSwitch" data-enabled="'.(string)$enabled.'">'.$text.' Open Dyslexic</div>';
+        break;
+    }
+    return $block;
+}
+
+class OpenDyslexicFont
+{
+    public function request($type) {
+        if ($type == 'check') {
+            return isset($_COOKIE['opendyslexic']) ? $_COOKIE['opendyslexic'] : false;
+        }
+        setcookie('opendyslexic', $type);
+        return $type;
+    }
+}
